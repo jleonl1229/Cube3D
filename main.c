@@ -6,7 +6,7 @@
 /*   By: jleon-la <jleon-la@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/10 18:38:04 by nkrasimi          #+#    #+#             */
-/*   Updated: 2024/11/07 18:55:30 by jleon-la         ###   ########.fr       */
+/*   Updated: 2024/11/08 19:41:10 by jleon-la         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ typedef struct	s_map
 {
 	char	directions[4][200];
 	int	ndirections;
-	char	**colors;
+	char	colors[2][200];
 	int	ncolors;
 	char	**map;
 	int	nmap;
@@ -405,7 +405,51 @@ char	*noendl_dup(const char *s1)
 	return (memory);
 }
 
-void checkdirections(t_map *map, int i)
+void	checkcolors(t_map *map, int i)
+{
+	char	**arr;
+	char	**arr2;
+	char	*noendline;
+	int	fd;
+       
+	arr = ft_split(map->colors[i], ' ');
+	if (i == 0 && strcmp(arr[0], "F"))
+		return (mess(2, "Floor character wrong\n"), exit(1));
+	if (i == 1 && strcmp(arr[0], "C"))
+		return (mess(2, "Ceiling character wrong\n"), exit(1));
+	noendline = noendl_dup(arr[1]);
+	/* mess(1, "Second part's characters working"); */
+	arr2 = ft_split(noendline, ',');
+	
+}
+
+void	floornceiling(t_map *map, int *i, int fd)
+{
+	int	ii;
+	char	*line;
+
+	while (*i < map->ncolors)
+	{
+		line = get_next_line(fd);
+		if (line && strcmp(line, "\n"))
+		{
+			/* Aqui quiero incluir la linea valida dentro del array de strings de la estructura */
+			ii = 0;
+			while (line[ii])
+			{
+				map->colors[*i][ii] = line[ii];
+				ii++;
+			}
+			map->colors[*i][ii] = '\0';
+			mess(1, map->colors[*i]);
+			/* mess(1, "\n"); */
+			checkcolors(map, *i);
+			(*i)++;
+		}
+	}	
+}
+
+void	checkdirections(t_map *map, int i)
 {
 	/* Aqui voy a meter un split para cada una de las partes y negare un strcmp para ver si es el str que deberia en la primera parte y en la segunda ver si la ruta existe*/
 	char	**arr;
@@ -431,12 +475,37 @@ void checkdirections(t_map *map, int i)
 		return (mess(2, "The image of one of the directions was not found in the system\n"), exit(1));
 }
 
+void	directions_bridge(t_map *map, int *i, int fd)
+{
+	int	ii;
+	char	*line;
+
+	ii = 0;
+	while (*i < map->ndirections)
+	{
+		line = get_next_line(fd);
+		if (line && strcmp(line, "\n"))
+		{
+			/* Aqui quiero incluir la linea valida dentro del array de strings de la estructura */
+			ii = 0;
+			while (line[ii])
+			{
+				map->directions[*i][ii] = line[ii];
+				ii++;
+			}
+			map->directions[*i][ii] = '\0';
+			mess(1, map->directions[*i]);
+			/* mess(1, "\n"); */
+			checkdirections(map, *i);
+			(*i)++;
+		}
+	}	
+}
+
 int check3atributtes(t_map *map)
 {
 	int	fd;
 	int	i;
-	int	ii;
-	char	*line;
 
 	fd = open(ft_strjoin("./maps/", map->path), O_RDONLY);
 	// Tenemos que importar el GNL para poder parsear esto correctamente bueno y la libft tambien
@@ -445,27 +514,10 @@ int check3atributtes(t_map *map)
 		mess(1, "Todo el parseo fuciona correctamente\n");
 		/* Primero checkeo las 4 direcciones y las meto en un doble punter de la estructura */
 		i = 0;
-		while (i < map->ndirections)
-		{
-			line = get_next_line(fd);
-			if (line && strcmp(line, "\n"))
-			{
-				/* Aqui quiero incluir la linea valida dentro del array de strings de la estructura */
-				ii = 0;
-				while (line[ii])
-				{
-					map->directions[i][ii] = line[ii];
-					ii++;
-				}
-				map->directions[i][ii] = '\0';
-				mess(1, map->directions[i]);
-				/* mess(1, "\n"); */
-				checkdirections(map, i);
-				i++;
-			}
-		}
+		directions_bridge(map, &i, fd);
 		/* Despues lo mismo con los colores del suelo y del cielo */
-		
+		i = 0;
+		floornceiling(map, &i, fd);
 		/* Para terminar meto las lineas de mapa y me aseguro de quitar espacios y ver que los caracteres son correctos REMINDER:El mapa que le tengo que pasar a nico es la version con espacios*/
 
 		/* Floodfill para asegurarme que el mapa esta correctamente cerrado */
