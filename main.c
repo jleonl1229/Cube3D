@@ -6,7 +6,7 @@
 /*   By: jleon-la <jleon-la@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/10 18:38:04 by nkrasimi          #+#    #+#             */
-/*   Updated: 2024/11/08 22:03:58 by jleon-la         ###   ########.fr       */
+/*   Updated: 2024/11/08 23:10:29 by jleon-la         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,6 +405,50 @@ char	*noendl_dup(const char *s1)
 	return (memory);
 }
 
+int	ft_atoi(const char *str)
+{
+	int	i;
+	int	sign;
+	int	num;
+
+	i = 0;
+	sign = 1;
+	num = 0;
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+		i++;
+	if ((str[i] == '+') || (str[i] == '-'))
+	{
+		if (str[i] == '-')
+			sign = -1;
+		i++;
+	}
+	while (str[i] != '\0' && str[i] >= '0' && str[i] <= '9')
+	{
+		num = (num * 10) + (str[i] - '0');
+		i++;
+	}
+	return (num * sign);
+}
+
+int	ft_isdigit(int c)
+{
+	return (c >= 48 && c <= 57);
+}
+
+void	isrgbable(char **arr2)
+{
+	int	i;
+
+	i = 0;
+	while (arr2[i])
+	{
+		if (ft_atoi(arr2[i]) < 0 || ft_atoi(arr2[i]) > 255)
+			return (mess(2, "Some introduced number is not valid for rgb standard\n"), exit(1));
+		i++;
+	}
+	mess(1, "Todo esta funcionando muy bien por lo visto :)\n");
+}
+
 void	isvalidnum(char **arr2)
 {
 	int	i;
@@ -423,20 +467,14 @@ void	isvalidnum(char **arr2)
 		ii = 0;
 		while (arr2[i][ii])
 		{
-			if (!ft_isnum(arr[i][ii]))
+			if (!ft_isdigit(arr2[i][ii]))
 				return (mess(2, "There is some non digit character\n"), exit(1));
 			ii++;
 		}
 		i++;
 	}
 	/* Aqui mirare que los numeros estan entre el 0 y el 255 ambos incluidos con el atoi*/
-	i = 0;
-	while (arr2[i])
-	{
-		if (ft_atoi(arr2[i]) < 0 && ft_atoi(arr2[i]) > 255)
-			return (mess(2, "Some introduced number is not valid for rgb standard\n"), exit(1));
-		i++;
-	}
+	isrgbable(arr2);
 }
 
 void	checkcolors(t_map *map, int i)
@@ -454,7 +492,7 @@ void	checkcolors(t_map *map, int i)
 	noendline = noendl_dup(arr[1]);
 	/* mess(1, "Second part's characters working"); */
 	arr2 = ft_split(noendline, ',');
-	checkisavalidnum(arr2);
+	isvalidnum(arr2);
 }
 
 void	floornceiling(t_map *map, int *i, int fd)
