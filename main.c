@@ -6,7 +6,7 @@
 /*   By: jleon-la <jleon-la@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/10 18:38:04 by nkrasimi          #+#    #+#             */
-/*   Updated: 2024/11/08 19:41:10 by jleon-la         ###   ########.fr       */
+/*   Updated: 2024/11/08 22:03:58 by jleon-la         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,6 +405,40 @@ char	*noendl_dup(const char *s1)
 	return (memory);
 }
 
+void	isvalidnum(char **arr2)
+{
+	int	i;
+	int	ii;
+
+	i = 0;
+	/* Primero mirare el numero de argumentos para asegurarme de que son tres numeros */
+	while (arr2[i])
+		i++;
+	if (i != 3)
+		return (mess(2, "There aren't three arguments after spliting\n"), exit(1));
+	/* Ahora tendre que comprobar que todos los caracteres son numeros */
+	i = 0;
+	while (arr2[i])
+	{
+		ii = 0;
+		while (arr2[i][ii])
+		{
+			if (!ft_isnum(arr[i][ii]))
+				return (mess(2, "There is some non digit character\n"), exit(1));
+			ii++;
+		}
+		i++;
+	}
+	/* Aqui mirare que los numeros estan entre el 0 y el 255 ambos incluidos con el atoi*/
+	i = 0;
+	while (arr2[i])
+	{
+		if (ft_atoi(arr2[i]) < 0 && ft_atoi(arr2[i]) > 255)
+			return (mess(2, "Some introduced number is not valid for rgb standard\n"), exit(1));
+		i++;
+	}
+}
+
 void	checkcolors(t_map *map, int i)
 {
 	char	**arr;
@@ -420,7 +454,7 @@ void	checkcolors(t_map *map, int i)
 	noendline = noendl_dup(arr[1]);
 	/* mess(1, "Second part's characters working"); */
 	arr2 = ft_split(noendline, ',');
-	
+	checkisavalidnum(arr2);
 }
 
 void	floornceiling(t_map *map, int *i, int fd)
